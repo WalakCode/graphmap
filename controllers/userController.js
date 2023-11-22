@@ -1,20 +1,22 @@
-const userModel = require('../models/userModel')
+const UserModel = require('../models/userModel');
 
-class UserController{
-    constructor(){
+class UserController {
+    constructor() {
 
     }
 
-    static async createtUsers(user,pass){
-        try{
-            const result = await userModel.createUser(user,pass)
-            if(result.success){
-                console.log(result,"asdaddad")
+    static async createUsers(user, pass) {
+        if (user && pass) {
+            const result = await UserModel.createUser(user, pass);
+            if (result.success) {
+                return { validation: true, data: result.data };
+            } else {
+                return { validation: false};
             }
-        }catch(error){
-            console.error('Error en createUsers:', error);
+        } else {
+            return { error: 'Ingrese credenciales válidas' };
         }
     }
 }
 
-module.exports = UserController
+module.exports = UserController;

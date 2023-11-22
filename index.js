@@ -2,7 +2,7 @@ const express = require('express');
 const { createServer } = require("node:http");
 const bodyParser = require('body-parser');
 const conn = require('./config/dbC');
-const userController = require('./controllers/userController')
+const userController = require('./controllers/userController');
 
 const app = express();
 const server = createServer(app);
@@ -26,15 +26,20 @@ app.get('/',(req,res)=>{
     res.render('index')
 })
 
-app.post('/v1/login',async(req,res)=>{
-    const user = req.body.data.user
-    const pass = req.body.data.pass
+app.post('/login',async(req,res)=>{
+    const user = req.body.user
+    const pass = req.body.password
 
-    const result = await userController.createtUsers(user,pass)
+    const result = await userController.createUsers(user,pass)
 
-    console.log(result)
+    if(result.error){
+        res.status(400).json(result)
+    }
+    if(result.validation){
+        res.render('next')
+    }else{
+        res.render('error')
+    }
 
-    res.status(201).json({ mensaje: 'Recurso creado con éxito' });
 })
-
 

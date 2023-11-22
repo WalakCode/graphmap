@@ -1,30 +1,33 @@
 const mysql = require('mysql2/promise');
-const dbc = require('../config/dbC')
+const pool = require('../config/dbC');
 
-class User{
-    constructor(user,pass){
-        this.user = user;
-        this.password = pass
+class User {
+  constructor(user, pass) {
+    this.user = user;
+    this.password = pass;
+  }     
+
+  static async createUser(getUser, getPass) {
+    let connection;
+
+    try {
+      const user = new User(getUser, getPass);
+
+      connection = await pool.getConnection();
+
+      const query = `INSERT INTO users SET username = ?, password = ?`;
+      const rows = await connection.execute(query, [user.user, user.password]);
+
+      return {success: true, data: user };
+    } catch (error) {
+      console.error('Error en createUser:', error);
+      return {success: false, error: 'Error al obtener usuario' };
+    } finally {
+      if (connection) {
+        connection.release();
+      }
     }
-
-    static async createUser(getUser,getPass){
-        try{
-            const user = new User(getUser,getPass)
-            
-            const pool = mysql.createPool(dbc);
-            const connection = await pool.getConnection();
-
-            const query = `INSERT INTO users SET username = ?, password = ?`
-            const[rows,fields] = await connection.execute(query,[user.user,user.password])
-            
-            connection.release();
-            return {success:true,data:rows,fields}
-        }catch(error){
-            console.error('Error en createUser:', error);
-            return {success:false,error:'error al obtener usuario'}
-        }
-    }
+  }
 }
-
 
 module.exports = User;
